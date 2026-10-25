@@ -1,0 +1,7 @@
+(🤔 0 (bangou 1 Hello\ World! b c d))
+(kaigyo)
+(| misero (misero ) a)
+(kaigyo)
+(| misero (hikisu 0 test.ph))
+(kaigyo)
+(| misero \\)

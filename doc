@@ -1,0 +1,140 @@
+kusso lang
+
+phony.rs
+
+about
+ 構文はS式
+ とりあえず構文上のもの()以外全部文字列として解釈
+ 構文解析と実行を同時にするためくそ遅いインタプリタ
+ ascii以外使うなし
+ 全てのコードファイルは関数として使える
+ バッファリードしない
+ 構文を間違えていてもそれを実行する時までわからない
+ 並列処理できない
+ 明示的な変数がない
+ 型がない
+ ループが再帰関数だけ
+
+
+struct AndOption<A,B>{
+ a:A
+ b:Option<B>
+}
+
+ 都合がいいから抽象化
+
+
+struct VM(仮){
+ mem: HashMap<Vec<u8>, AndOption<Vec<Vec<Vec<u8>>>, Vec<Vec<u8>>>
+}
+
+ モジュール内に変数が置けないので簡潔にするために構造体にしました！
+ なんとなくオブジェクト指向ってかっこいいので構造体にしました！
+ 浅はか！
+
+ 関数のデストラクタがない仕様なのでmemかVM自体をデストラクトすればできる
+ 関数は可変(仮)なので変数っぽく使える
+
+ memは キーが文字列で オブジェクトが引数名と 関数が実行する関数の内容の組
+
+
+methods
+ fn exec(&mut self, Vec<u8>)->Vec<u8>
+   実行しろ
+
+   "a b c"
+     memからaキーを探して
+     Vec<Vec<u8>>に HashSet<Vec<u8>>を bmserchして埋め込んで
+     再起的にexecする
+
+   "yunyu mode name"
+     modeがkansuの時はimport_fnを呼び出す
+     ko-doの時はimport_codeを呼び出す
+
+   "teigi name (args) cmd"
+     def()を呼び出す
+
+   "hikusu n name"
+     ある関数fが実行されてる時に
+     (hikisu f n)でn番目の引数にアクセスできる
+     実行が終わったらdropされる
+     (hikisu ファイル名 n)は
+     ファイルが実行されている時はコマンドライン引数
+     ファイルが関数として使われているときは引数になる
+
+   "doukana? bool cmd"
+     if的なやつ
+     boolは0か1
+     1がtrue.*
+
+   "bunkai str"
+     文字列の間に一文字づつスペースを入れよう
+
+   "megante"
+     memを初期化する
+     10%ぐらいの確率でプログラムが勝手に終わる
+
+   "misero"
+     標準出力
+
+
+ fn def(&mut self, Vec<u8>)
+   関数を追加する
+   インタプリタ側から(teigi name (arg1 arg2 ...) cmd)で呼び出せる
+
+   argsからHashSetを作る
+   呼び出し時に引数の数が多い場合は余分を全部入れる
+　　なので最後はリストになっている
+   cmdをそのまんまVec(u8)nisuru
+   そいでキーをnameにしてmemに追加する
+
+ fn import_code, fn import_fn (&mut self, name:Vec<u8>)
+  他のソースコードをコード、または関数として読み込む
+
+main
+ ファイル入出力とかVMのインスタンス化とか色々
+
+fn bm_serch() -> usize
+ bmserchするぜ
+
+fn error(kind:Kind detail:Display) -> !
+ 構文エラーもioエラーも全てここに送られる
+
+struct Bytes (impl Iterator)
+ コードファイルを一バイトづつ読み込むイテレータ
+ ioエラーはerror()に投げる
+
+enum Kind
+ エラーの種類
+
+
+lib.ph
+
+about
+ kussoな標準ライブラリ
+ 関数がいっぱい入ってるよ！！！
+
+
+ (banngou n list)
+   インデックスを指定して取り出す
+
+ (| name args)
+   普段は入れ子のs式は関数自体が引数として扱われるため
+   関数を先行評価するための関数
+   この関数使いまくるとコードが超面倒なことになる
+
+ 算術ライブラリ
+  bool値で数字を扱ってVM感を醸し出す
+
+  (suuji n_ary n)
+    n_aryが
+    xなら16進数
+    dなら10進数
+    空白なら8進数
+    二進数を返す
+
+  (tasu n m)
+  (hiku n m)
+  (kake n m)
+  (waru n m)
+    四則演算
